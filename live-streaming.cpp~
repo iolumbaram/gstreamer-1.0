@@ -3,6 +3,13 @@
 #include <signal.h>
 #include <unistd.h>
 #include <stdlib.h>
+//autovideosrc horizontal-speed=1 is-live=true ! videoconvert ! vp8enc cpu-used=5 deadline=1 keyframe-max-dist=10 ! queue leaky=1 ! m. autoaudiosrc ! audioconvert ! vorbisenc ! queue leaky=1 ! m. webmmux name=m streamable=true ! queue leaky=1 ! filesink location=/home/hazel/live-gst.webm
+
+
+//autovideosrc horizontal-speed=1 is-live=true ! videoconvert ! vp8enc cpu-used=5 deadline=1 keyframe-max-dist=10 ! queue leaky=1 ! m. webmmux name=m streamable=true ! queue leaky=1 ! filesink location=/home/hazel/live-gst.webm
+
+//this doesnt work
+//autovideosrc horizontal-speed=1 is-live=true ! videoconvert ! vp8enc cpu-used=5 deadline=1 keyframe-max-dist=10 ! queue leaky=1 ! webmmux ! queue leaky=1 ! filesink location=/home/hazel/live-gst02.webm
 
 // gst-launch-1.0 v4l2src ! x264enc ! mp4mux ! filesink location=/home/hazel/Desktop/okay.264 -e
 //reference from:

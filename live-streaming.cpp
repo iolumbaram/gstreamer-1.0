@@ -5,6 +5,17 @@
 #include <stdlib.h>
 //autovideosrc horizontal-speed=1 is-live=true ! videoconvert ! vp8enc cpu-used=5 deadline=1 keyframe-max-dist=10 ! queue leaky=1 ! m. autoaudiosrc ! audioconvert ! vorbisenc ! queue leaky=1 ! m. webmmux name=m streamable=true ! queue leaky=1 ! filesink location=/home/hazel/live-gst.webm
 
+
+//autovideosrc horizontal-speed=1 is-live=true ! videoconvert ! vp8enc cpu-used=5 deadline=1 keyframe-max-dist=10 ! queue leaky=1 ! m. webmmux name=m streamable=true ! queue leaky=1 ! filesink location=/home/hazel/live-gst.webm
+
+//gst-launch-1.0 autovideosrc horizontal-speed=1 is-live=true ! videoconvert ! vp8enc cpu-used=5 deadline=1 keyframe-max-dist=10 ! queue leaky=1 ! webmmux ! streamable=true ! queue leaky=1 ! filesink location=/home/hazel/live-gst.webm
+
+//this works
+//gst-launch-1.0 autovideosrc horizontal-speed=1 is-live=true ! videoconvert ! vp8enc cpu-used=5 deadline=1 keyframe-max-dist=10 ! queue leaky=1 ! webmmux streamable=true ! queue leaky=1 ! filesink location=/home/hazel/live-gst.webm
+
+//this doesnt work
+//autovideosrc horizontal-speed=1 is-live=true ! videoconvert ! vp8enc cpu-used=5 deadline=1 keyframe-max-dist=10 ! queue leaky=1 ! webmmux ! queue leaky=1 ! filesink location=/home/hazel/live-gst02.webm
+
 // gst-launch-1.0 v4l2src ! x264enc ! mp4mux ! filesink location=/home/hazel/Desktop/okay.264 -e
 //reference from:
 //https://gist.github.com/CreaRo/8c71729ed58c4c134cac44db74ea1754
