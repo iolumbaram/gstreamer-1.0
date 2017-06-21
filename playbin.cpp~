@@ -5,6 +5,10 @@
 #include <stdlib.h>
 
 // gst-launch-1.0 v4l2src ! x264enc ! mp4mux ! filesink location=/home/hazel/Desktop/okay.264 -e
+//reference from:
+//https://gist.github.com/CreaRo/8c71729ed58c4c134cac44db74ea1754
+//output will record webcam data encode it into webm format
+
 static GMainLoop *loop;
 static GstElement *pipeline, *src, *encoder, *muxer, *sink;
 static GstBus *bus;
