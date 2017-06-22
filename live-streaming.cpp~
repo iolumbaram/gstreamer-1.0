@@ -160,7 +160,7 @@ int main(int argc, char *argv[])
 	/* adding properties for element, encoder*/
 	//*encoder.set_property("deadline",1);
 	//g_print(print);
-	g_object_set(encoder, "deadline", 1, NULL);
+	g_object_set(encoder, "deadline", 2, NULL);
 	//link elements and caps
 	//gst_element_link_filtered(encoder, muxer, caps);
 //	if (!gst_element_link_filtered(encoder, muxer, caps))
