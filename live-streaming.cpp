@@ -3,36 +3,32 @@
 #include <signal.h>
 #include <unistd.h>
 #include <stdlib.h>
-/* creating capabilities for filtering*/
-/*	filter to limit types of media that can stream btw two pads
-	streamable property - gboolean - if true, output will be streaming friendly
+/* this script
+	can:
+		. live-stream for only sometime (upon initial launch)
+	cant:
+		. live-streaming
+		. smooth display
+
+******************* final! do this! *******************
+gst-launch-1.0 -v v4l2src ! videoconvert ! vp8enc deadline=1 ! webmmux ! filesink location=/home/hazel/Desktop/live-gst05.webm
+
+this doesnt work
+gst-launch-1.0 autovideosrc horizontal-speed=1 is-live=true ! videoconvert ! vp8enc cpu-used=5 deadline=1 keyframe-max-dist=10 ! queue leaky=1 ! webmmux ! queue leaky=1 ! filesink location=/home/hazel/live-gst02.webm
+
+gst-launch-1.0 v4l2src ! x264enc ! mp4mux ! filesink location=/home/hazel/Desktop/okay.264 -e
+
+reference from:
+https://gist.github.com/CreaRo/8c71729ed58c4c134cac44db74ea1754
+output will record webcam data encode it into webm format
 */
-	
-
-
-//autovideosrc horizontal-speed=1 is-live=true ! videoconvert ! vp8enc cpu-used=5 deadline=1 keyframe-max-dist=10 ! queue leaky=1 ! m. autoaudiosrc ! audioconvert ! vorbisenc ! queue leaky=1 ! m. webmmux name=m streamable=true ! queue leaky=1 ! filesink location=/home/hazel/live-gst.webm
-
-
-//autovideosrc horizontal-speed=1 is-live=true ! videoconvert ! vp8enc cpu-used=5 deadline=1 keyframe-max-dist=10 ! queue leaky=1 ! m. webmmux name=m streamable=true ! queue leaky=1 ! filesink location=/home/hazel/live-gst.webm
-
-//gst-launch-1.0 autovideosrc horizontal-speed=1 is-live=true ! videoconvert ! vp8enc cpu-used=5 deadline=1 keyframe-max-dist=10 ! queue leaky=1 ! webmmux ! streamable=true ! queue leaky=1 ! filesink location=/home/hazel/live-gst.webm
-
-//this works
-//gst-launch-1.0 autovideosrc horizontal-speed=1 is-live=true ! videoconvert ! vp8enc cpu-used=5 deadline=1 keyframe-max-dist=10 ! queue leaky=1 ! webmmux streamable=true ! queue leaky=1 ! filesink location=/home/hazel/live-gst.webm
-
-//this doesnt work
-//autovideosrc horizontal-speed=1 is-live=true ! videoconvert ! vp8enc cpu-used=5 deadline=1 keyframe-max-dist=10 ! queue leaky=1 ! webmmux ! queue leaky=1 ! filesink location=/home/hazel/live-gst02.webm
-
-// gst-launch-1.0 v4l2src ! x264enc ! mp4mux ! filesink location=/home/hazel/Desktop/okay.264 -e
-//reference from:
-//https://gist.github.com/CreaRo/8c71729ed58c4c134cac44db74ea1754
-//output will record webcam data encode it into webm format
 
 static GMainLoop *loop;
 static GstElement *pipeline, *src, *encoder, *muxer, *sink;
 static GstBus *bus;
 static gboolean is_live;
 
+#define CAPS "vp8enc, deadline=1"
 
 static gboolean
 message_cb (GstBus * bus, GstMessage * message, gpointer user_data)
@@ -117,13 +113,16 @@ message_cb (GstBus * bus, GstMessage * message, gpointer user_data)
 //}
 
 int main(int argc, char *argv[])
-{
+{	
+//	GstCaps *caps;
+
 	//signal(SIGINT, sigintHandler);
 	gst_init (&argc, &argv);
 	GstStateChangeReturn ret;
 
-	pipeline = gst_pipeline_neidtw(NULL);
+	pipeline = gst_pipeline_new(NULL);
 	src = gst_element_factory_make("v4l2src", NULL);
+	//converter = gst_element_factory_make("videoconverter", NULL);
 	encoder = gst_element_factory_make("vp8enc", NULL);
 	muxer = gst_element_factory_make("webmmux", NULL);
 	sink = gst_element_factory_make("filesink", NULL);
@@ -140,6 +139,13 @@ int main(int argc, char *argv[])
 
 	/*adding elements to pipelines*/
 	gst_bin_add_many(GST_BIN(pipeline), src, encoder, muxer, sink, NULL);
+
+	/*specify caps for encoder*/
+//	caps = gst_caps_new_full(
+//		gst_structure_new("vp8enc", 
+//			"deadline", G_TYPE_INT, 1, NULL), 
+//		NULL);
+ 
 	/*linking all the elements*/
 	//gst_element_link(src, encoder);	
 	//gst_element_link_many (src, encoder, muxer, sink, NULL);
@@ -150,8 +156,24 @@ int main(int argc, char *argv[])
 	}
 
 	loop = g_main_loop_new(NULL, FALSE);
+
+	/* adding properties for element, encoder*/
+	//*encoder.set_property("deadline",1);
+	//g_print(print);
+	g_object_set(encoder, "deadline", 1, NULL);
+	//link elements and caps
+	//gst_element_link_filtered(encoder, muxer, caps);
+//	if (!gst_element_link_filtered(encoder, muxer, caps))
+//	{
+//		gst_object_unref(pipeline);
+//		g_print("caps for encoder not linked");
+//		g_print(" closing pipeline");
+//		return 0;
+//	}
+	
 	/*build pipeline*/
 	bus = gst_pipeline_get_bus(GST_PIPELINE (pipeline));
+
 	/*start playing*/
 	ret = gst_element_set_state (pipeline, GST_STATE_PLAYING);
 	if(ret == GST_STATE_CHANGE_FAILURE){
@@ -159,6 +181,7 @@ int main(int argc, char *argv[])
 		return -1;
 	}else if (ret==GST_STATE_CHANGE_NO_PREROLL){
 		is_live = TRUE;
+		g_print("live streaming..");
 	}
 
 	gst_bus_add_signal_watch(bus);

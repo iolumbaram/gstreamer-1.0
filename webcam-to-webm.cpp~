@@ -3,30 +3,29 @@
 #include <signal.h>
 #include <unistd.h>
 #include <stdlib.h>
-/* creating capabilities for filtering*/
-/*	filter to limit types of media that can stream btw two pads
-	streamable property - gboolean - if true, output will be streaming friendly
-*/
+/* this script
+	can:
+		. live-stream for only sometime (upon initial launch)
+	cant:
+		. live-streaming
+		. smooth display
+
 	
 
+******************* final! do this! *******************
+gst-launch-1.0 -v v4l2src ! videoconvert ! vp8enc deadline=1 ! webmmux ! filesink location=/home/hazel/live-gst05.webm
 
-//autovideosrc horizontal-speed=1 is-live=true ! videoconvert ! vp8enc cpu-used=5 deadline=1 keyframe-max-dist=10 ! queue leaky=1 ! m. autoaudiosrc ! audioconvert ! vorbisenc ! queue leaky=1 ! m. webmmux name=m streamable=true ! queue leaky=1 ! filesink location=/home/hazel/live-gst.webm
+this works
+gst-launch-1.0 autovideosrc horizontal-speed=1 is-live=true ! videoconvert ! vp8enc cpu-used=5 deadline=1 keyframe-max-dist=10 ! queue leaky=1 ! webmmux streamable=true ! queue leaky=1 ! filesink location=/home/hazel/live-gst.webm
 
+this doesnt work
+autovideosrc horizontal-speed=1 is-live=true ! videoconvert ! vp8enc cpu-used=5 deadline=1 keyframe-max-dist=10 ! queue leaky=1 ! webmmux ! queue leaky=1 ! filesink location=/home/hazel/live-gst02.webm
 
-//autovideosrc horizontal-speed=1 is-live=true ! videoconvert ! vp8enc cpu-used=5 deadline=1 keyframe-max-dist=10 ! queue leaky=1 ! m. webmmux name=m streamable=true ! queue leaky=1 ! filesink location=/home/hazel/live-gst.webm
-
-//gst-launch-1.0 autovideosrc horizontal-speed=1 is-live=true ! videoconvert ! vp8enc cpu-used=5 deadline=1 keyframe-max-dist=10 ! queue leaky=1 ! webmmux ! streamable=true ! queue leaky=1 ! filesink location=/home/hazel/live-gst.webm
-
-//this works
-//gst-launch-1.0 autovideosrc horizontal-speed=1 is-live=true ! videoconvert ! vp8enc cpu-used=5 deadline=1 keyframe-max-dist=10 ! queue leaky=1 ! webmmux streamable=true ! queue leaky=1 ! filesink location=/home/hazel/live-gst.webm
-
-//this doesnt work
-//autovideosrc horizontal-speed=1 is-live=true ! videoconvert ! vp8enc cpu-used=5 deadline=1 keyframe-max-dist=10 ! queue leaky=1 ! webmmux ! queue leaky=1 ! filesink location=/home/hazel/live-gst02.webm
-
-// gst-launch-1.0 v4l2src ! x264enc ! mp4mux ! filesink location=/home/hazel/Desktop/okay.264 -e
-//reference from:
-//https://gist.github.com/CreaRo/8c71729ed58c4c134cac44db74ea1754
-//output will record webcam data encode it into webm format
+ gst-launch-1.0 v4l2src ! x264enc ! mp4mux ! filesink location=/home/hazel/Desktop/okay.264 -e
+reference from:
+https://gist.github.com/CreaRo/8c71729ed58c4c134cac44db74ea1754
+output will record webcam data encode it into webm format
+*/
 
 static GMainLoop *loop;
 static GstElement *pipeline, *src, *encoder, *muxer, *sink;
